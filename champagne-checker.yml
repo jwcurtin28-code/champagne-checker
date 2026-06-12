@@ -1,0 +1,33 @@
+name: Champagne Deal Checker
+
+on:
+  schedule:
+    # Runs every day at 08:00 UTC (09:00 UK winter / 10:00 UK summer)
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  check-deals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run champagne checker
+        env:
+          PUSHOVER_USER_KEY:  ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+          MIN_DISCOUNT_PCT:   "25"
+          MIN_BOTTLES:        "6"
+        run: python champagne_checker.py
